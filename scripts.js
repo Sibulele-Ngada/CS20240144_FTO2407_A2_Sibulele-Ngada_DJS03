@@ -50,6 +50,7 @@ function showResults(result) {
   document.querySelector("[data-list-items]").innerHTML = "";
   pageCount = 0;
   showMore(result);
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function genreFilter() {
@@ -84,6 +85,21 @@ function authorFilter() {
   }
 
   document.querySelector("[data-search-authors]").appendChild(authorsHtml);
+}
+
+function toggleTheme(theme) {
+  if (theme === "night") {
+    document.querySelector("[data-settings-theme]").value = "night";
+    document.documentElement.style.setProperty("--color-dark", "255, 255, 255");
+    document.documentElement.style.setProperty("--color-light", "10, 10, 20");
+  } else {
+    document.querySelector("[data-settings-theme]").value = "day";
+    document.documentElement.style.setProperty("--color-dark", "10, 10, 20");
+    document.documentElement.style.setProperty(
+      "--color-light",
+      "255, 255, 255"
+    );
+  }
 }
 
 if (
@@ -131,19 +147,7 @@ document
     const formData = new FormData(event.target);
     const { theme } = Object.fromEntries(formData);
 
-    if (theme === "night") {
-      document.documentElement.style.setProperty(
-        "--color-dark",
-        "255, 255, 255"
-      );
-      document.documentElement.style.setProperty("--color-light", "10, 10, 20");
-    } else {
-      document.documentElement.style.setProperty("--color-dark", "10, 10, 20");
-      document.documentElement.style.setProperty(
-        "--color-light",
-        "255, 255, 255"
-      );
-    }
+    toggleTheme(theme);
 
     document.querySelector("[data-settings-overlay]").open = false;
   });
@@ -176,7 +180,6 @@ document
       }
     }
 
-    page = 1;
     matches = result;
 
     if (result.length < 1) {
@@ -188,10 +191,7 @@ document
         .querySelector("[data-list-message]")
         .classList.remove("list__message_show");
     }
-
-    window.scrollTo({ top: 0, behavior: "smooth" });
     document.querySelector("[data-search-overlay]").open = false;
-
     showResults(result);
   });
 
@@ -219,6 +219,7 @@ document
         active = result;
       }
     }
+
     if (active) {
       document.querySelector("[data-list-active]").open = true;
       document.querySelector("[data-list-blur]").src = active.image;
@@ -232,7 +233,7 @@ document
   });
 
 function init() {
-  showMore(books);
+  showMore(matches);
   genreFilter();
   authorFilter();
 }
