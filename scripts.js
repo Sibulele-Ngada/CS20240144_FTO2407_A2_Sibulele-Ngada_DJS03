@@ -4,12 +4,10 @@ let page = 1;
 let matches = books;
 let pageCount = 0;
 
-const starting = document.createDocumentFragment();
-function init(displayBooks) {
-  starting.innerHTML = "";
-  pageCount = pageCount === 0 ? pageCount : BOOKS_PER_PAGE;
+function displayBooks(seeBooks) {
+  const starting = document.createDocumentFragment();
 
-  for (const { author, id, image, title } of displayBooks.slice(
+  for (const { author, id, image, title } of seeBooks.slice(
     pageCount,
     pageCount + BOOKS_PER_PAGE
   )) {
@@ -31,12 +29,21 @@ function init(displayBooks) {
 
     starting.appendChild(element);
   }
-
   pageCount += BOOKS_PER_PAGE;
-  return starting;
+
+  document.querySelector("[data-list-items]").appendChild(starting);
 }
 
-document.querySelector("[data-list-items]").appendChild(init(books));
+function showMore() {
+  displayBooks(books);
+  document.querySelector("[data-list-button]").innerText =
+    `Show more (${books.length - pageCount})`;
+
+  if (books.length - pageCount <= 0) {
+    document.querySelector("[data-list-button]").disabled;
+    document.querySelector("[data-list-button]").innerText = `Show more (0)`;
+  }
+}
 
 function genreFilter() {
   const genreHtml = document.createDocumentFragment();
@@ -89,15 +96,10 @@ if (
   document.documentElement.style.setProperty("--color-light", "255, 255, 255");
 }
 
-document.querySelector("[data-list-button]").innerText =
-  `Show more (${books.length - BOOKS_PER_PAGE})`;
-// document.querySelector("[data-list-button]").disabled =
-//   matches.length - page * BOOKS_PER_PAGE > 0;
-
-document.querySelector("[data-list-button]").innerHTML = `
-    <span>Show more</span>
-    <span class="list__remaining"> (${matches.length - page * BOOKS_PER_PAGE > 0 ? matches.length - page * BOOKS_PER_PAGE : 0})</span>
-`;
+// document.querySelector("[data-list-button]").innerHTML = `
+//     <span>Show more</span>
+//     <span class="list__remaining"> (${matches.length - page * BOOKS_PER_PAGE > 0 ? matches.length - page * BOOKS_PER_PAGE : 0})</span>
+// `;
 
 document.querySelector("[data-search-cancel]").addEventListener("click", () => {
   document.querySelector("[data-search-overlay]").open = false;
@@ -228,9 +230,9 @@ document
     document.querySelector("[data-search-overlay]").open = false;
   });
 
-document.querySelector("[data-list-button]").addEventListener("click", () => {
-  document.querySelector("[data-list-items]").appendChild(init(books));
-});
+document
+  .querySelector("[data-list-button]")
+  .addEventListener("click", showMore);
 
 document
   .querySelector("[data-list-items]")
@@ -247,7 +249,6 @@ document
         for (const singleBook of books) {
           if (result) break;
           if (singleBook.id === node?.dataset?.preview) result = singleBook;
-          console.log(singleBook.id);
         }
 
         active = result;
@@ -264,3 +265,11 @@ document
         active.description;
     }
   });
+
+function init() {
+  displayBooks(books);
+  document.querySelector("[data-list-button]").innerText =
+    `Show more (${books.length - pageCount})`;
+}
+
+init();
