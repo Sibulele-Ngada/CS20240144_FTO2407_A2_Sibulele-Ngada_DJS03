@@ -197,7 +197,7 @@ document
 
 document
   .querySelector("[data-list-button]")
-  .addEventListener("click", () => showMore(books));
+  .addEventListener("click", () => showMore(matches));
 
 document
   .querySelector("[data-list-items]")
