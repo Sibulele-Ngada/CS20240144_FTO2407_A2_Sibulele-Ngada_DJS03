@@ -3,6 +3,10 @@ import { books, authors, genres, BOOKS_PER_PAGE } from "./data.js";
 let matches;
 let booksDisplayed;
 
+const html = {
+  theme: document.querySelector("[data-settings-theme]"),
+};
+
 function displayBooks(books) {
   const fragment = document.createDocumentFragment();
 
@@ -45,13 +49,6 @@ function updateUI(books) {
   }
 }
 
-function showResults(result) {
-  document.querySelector("[data-list-items]").innerHTML = "";
-  booksDisplayed = 0;
-  updateUI(result);
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
 function generateFilter(filter) {
   const filterName = filter === authors ? "Authors" : "Genres";
 
@@ -85,11 +82,11 @@ function toggleTheme(theme) {
     window.matchMedia("(prefers-color-scheme: dark)").matches &&
     theme === "night"
   ) {
-    document.querySelector("[data-settings-theme]").value = "night";
+    html.theme.value = "night";
     document.documentElement.style.setProperty("--color-dark", "255, 255, 255");
     document.documentElement.style.setProperty("--color-light", "10, 10, 20");
   } else {
-    document.querySelector("[data-settings-theme]").value = "day";
+    html.theme.value = "day";
     document.documentElement.style.setProperty("--color-dark", "10, 10, 20");
     document.documentElement.style.setProperty(
       "--color-light",
@@ -124,6 +121,13 @@ function selectedBook(active, pathArray) {
     document.querySelector("[data-list-description]").innerText =
       active.description;
   }
+}
+
+function showResults(result) {
+  document.querySelector("[data-list-items]").innerHTML = "";
+  booksDisplayed = 0;
+  updateUI(result);
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function search(filters) {
@@ -225,6 +229,7 @@ document
 function init() {
   matches = books;
   booksDisplayed = 0;
+  html.theme.value = "night";
   loadSearch();
   updateUI(matches);
 }
