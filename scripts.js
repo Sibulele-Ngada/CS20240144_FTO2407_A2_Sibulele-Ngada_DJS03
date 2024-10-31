@@ -1,7 +1,7 @@
 import { books, authors, genres, BOOKS_PER_PAGE } from "./data.js";
 
-let matches = books;
-let booksDisplayed = 0;
+let matches;
+let booksDisplayed;
 
 function displayBooks(books) {
   const starting = document.createDocumentFragment();
@@ -167,7 +167,7 @@ function search(filters) {
       .querySelector("[data-list-message]")
       .classList.remove("list__message_show");
   }
-  document.querySelector("[data-search-overlay]").open = false;
+
   showResults(result);
 }
 
@@ -202,8 +202,8 @@ document
     event.preventDefault();
     const formData = new FormData(event.target);
     const { theme } = Object.fromEntries(formData);
-    toggleTheme(theme);
     document.querySelector("[data-settings-overlay]").open = false;
+    toggleTheme(theme);
   });
 
 document
@@ -212,6 +212,7 @@ document
     event.preventDefault();
     const formData = new FormData(event.target);
     const filters = Object.fromEntries(formData);
+    document.querySelector("[data-search-overlay]").open = false;
     search(filters);
   });
 
@@ -229,9 +230,11 @@ document
   });
 
 function init() {
-  updateUI(matches);
+  matches = books;
+  booksDisplayed = 0;
   genreFilter();
   authorFilter();
+  updateUI(matches);
 }
 
 init();
