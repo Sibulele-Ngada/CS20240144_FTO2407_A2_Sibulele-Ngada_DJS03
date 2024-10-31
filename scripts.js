@@ -4,7 +4,7 @@ let matches;
 let booksDisplayed;
 
 function displayBooks(books) {
-  const starting = document.createDocumentFragment();
+  const fragment = document.createDocumentFragment();
 
   for (const { author, id, image, title } of books.slice(
     booksDisplayed,
@@ -26,10 +26,10 @@ function displayBooks(books) {
               </div>
           `;
 
-    starting.appendChild(element);
+    fragment.appendChild(element);
   }
 
-  document.querySelector("[data-list-items]").appendChild(starting);
+  document.querySelector("[data-list-items]").appendChild(fragment);
   booksDisplayed += BOOKS_PER_PAGE;
 }
 
@@ -52,38 +52,31 @@ function showResults(result) {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-function genreFilter() {
-  const genreHtml = document.createDocumentFragment();
-  const firstGenreElement = document.createElement("option");
-  firstGenreElement.value = "any";
-  firstGenreElement.innerText = "All Genres";
-  genreHtml.appendChild(firstGenreElement);
+function generateFilter(filter) {
+  const filterName = filter === authors ? "Authors" : "Genres";
 
-  for (const [id, name] of Object.entries(genres)) {
+  const fragment = document.createDocumentFragment();
+  const firstElement = document.createElement("option");
+  firstElement.value = "any";
+  firstElement.innerText = `All ${filterName}`;
+  fragment.appendChild(firstElement);
+  console.log;
+
+  for (const [id, name] of Object.entries(filter)) {
     const element = document.createElement("option");
     element.value = id;
     element.innerText = name;
-    genreHtml.appendChild(element);
+    fragment.appendChild(element);
   }
 
-  document.querySelector("[data-search-genres]").appendChild(genreHtml);
+  document
+    .querySelector(`[data-search-${filterName.toLowerCase()}]`)
+    .appendChild(fragment);
 }
 
-function authorFilter() {
-  const authorsHtml = document.createDocumentFragment();
-  const firstAuthorElement = document.createElement("option");
-  firstAuthorElement.value = "any";
-  firstAuthorElement.innerText = "All Authors";
-  authorsHtml.appendChild(firstAuthorElement);
-
-  for (const [id, name] of Object.entries(authors)) {
-    const element = document.createElement("option");
-    element.value = id;
-    element.innerText = name;
-    authorsHtml.appendChild(element);
-  }
-
-  document.querySelector("[data-search-authors]").appendChild(authorsHtml);
+function loadSearch() {
+  generateFilter(genres);
+  generateFilter(authors);
 }
 
 function toggleTheme(theme) {
@@ -232,8 +225,7 @@ document
 function init() {
   matches = books;
   booksDisplayed = 0;
-  genreFilter();
-  authorFilter();
+  loadSearch();
   updateUI(matches);
 }
 
