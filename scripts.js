@@ -29,20 +29,27 @@ function displayBooks(seeBooks) {
 
     starting.appendChild(element);
   }
-  pageCount += BOOKS_PER_PAGE;
 
   document.querySelector("[data-list-items]").appendChild(starting);
+  pageCount += BOOKS_PER_PAGE;
 }
 
-function showMore() {
-  displayBooks(books);
+function showMore(daBooks) {
+  displayBooks(daBooks);
+  document.querySelector("[data-list-button]").disabled = false;
   document.querySelector("[data-list-button]").innerText =
-    `Show more (${books.length - pageCount})`;
+    `Show more (${daBooks.length - pageCount})`;
 
-  if (books.length - pageCount <= 0) {
-    document.querySelector("[data-list-button]").disabled;
+  if (daBooks.length - pageCount <= 0) {
     document.querySelector("[data-list-button]").innerText = `Show more (0)`;
+    document.querySelector("[data-list-button]").disabled = true;
   }
+}
+
+function showResults(result) {
+  document.querySelector("[data-list-items]").innerHTML = "";
+  pageCount = 0;
+  showMore(result);
 }
 
 function genreFilter() {
@@ -59,10 +66,8 @@ function genreFilter() {
     genreHtml.appendChild(element);
   }
 
-  return genreHtml;
+  document.querySelector("[data-search-genres]").appendChild(genreHtml);
 }
-
-document.querySelector("[data-search-genres]").appendChild(genreFilter());
 
 function authorFilter() {
   const authorsHtml = document.createDocumentFragment();
@@ -78,10 +83,8 @@ function authorFilter() {
     authorsHtml.appendChild(element);
   }
 
-  return authorsHtml;
+  document.querySelector("[data-search-authors]").appendChild(authorsHtml);
 }
-
-document.querySelector("[data-search-authors]").appendChild(authorFilter());
 
 if (
   window.matchMedia &&
@@ -95,11 +98,6 @@ if (
   document.documentElement.style.setProperty("--color-dark", "10, 10, 20");
   document.documentElement.style.setProperty("--color-light", "255, 255, 255");
 }
-
-// document.querySelector("[data-list-button]").innerHTML = `
-//     <span>Show more</span>
-//     <span class="list__remaining"> (${matches.length - page * BOOKS_PER_PAGE > 0 ? matches.length - page * BOOKS_PER_PAGE : 0})</span>
-// `;
 
 document.querySelector("[data-search-cancel]").addEventListener("click", () => {
   document.querySelector("[data-search-overlay]").open = false;
@@ -191,48 +189,15 @@ document
         .classList.remove("list__message_show");
     }
 
-    document.querySelector("[data-list-items]").innerHTML = "";
-    const newItems = document.createDocumentFragment();
-
-    for (const { author, id, image, title } of result.slice(
-      0,
-      BOOKS_PER_PAGE
-    )) {
-      const element = document.createElement("button");
-      element.classList = "preview";
-      element.setAttribute("data-preview", id);
-
-      element.innerHTML = `
-            <img
-                class="preview__image"
-                src="${image}"
-            />
-            
-            <div class="preview__info">
-                <h3 class="preview__title">${title}</h3>
-                <div class="preview__author">${authors[author]}</div>
-            </div>
-        `;
-
-      newItems.appendChild(element);
-    }
-
-    document.querySelector("[data-list-items]").appendChild(newItems);
-    document.querySelector("[data-list-button]").disabled =
-      matches.length - page * BOOKS_PER_PAGE < 1;
-
-    document.querySelector("[data-list-button]").innerHTML = `
-        <span>Show more</span>
-        <span class="list__remaining"> (${matches.length - page * BOOKS_PER_PAGE > 0 ? matches.length - page * BOOKS_PER_PAGE : 0})</span>
-    `;
-
     window.scrollTo({ top: 0, behavior: "smooth" });
     document.querySelector("[data-search-overlay]").open = false;
+
+    showResults(result);
   });
 
 document
   .querySelector("[data-list-button]")
-  .addEventListener("click", showMore);
+  .addEventListener("click", () => showMore(books));
 
 document
   .querySelector("[data-list-items]")
@@ -267,9 +232,9 @@ document
   });
 
 function init() {
-  displayBooks(books);
-  document.querySelector("[data-list-button]").innerText =
-    `Show more (${books.length - pageCount})`;
+  showMore(books);
+  genreFilter();
+  authorFilter();
 }
 
 init();
