@@ -34,7 +34,7 @@ function displayBooks(seeBooks) {
   pageCount += BOOKS_PER_PAGE;
 }
 
-function showMore(daBooks) {
+function updateUI(daBooks) {
   displayBooks(daBooks);
   document.querySelector("[data-list-button]").disabled = false;
   document.querySelector("[data-list-button]").innerText =
@@ -49,7 +49,7 @@ function showMore(daBooks) {
 function showResults(result) {
   document.querySelector("[data-list-items]").innerHTML = "";
   pageCount = 0;
-  showMore(result);
+  updateUI(result);
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -88,7 +88,11 @@ function authorFilter() {
 }
 
 function toggleTheme(theme) {
-  if (theme === "night") {
+  if (
+    window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches &&
+    theme === "night"
+  ) {
     document.querySelector("[data-settings-theme]").value = "night";
     document.documentElement.style.setProperty("--color-dark", "255, 255, 255");
     document.documentElement.style.setProperty("--color-light", "10, 10, 20");
@@ -102,17 +106,32 @@ function toggleTheme(theme) {
   }
 }
 
-if (
-  window.matchMedia &&
-  window.matchMedia("(prefers-color-scheme: dark)").matches
-) {
-  document.querySelector("[data-settings-theme]").value = "night";
-  document.documentElement.style.setProperty("--color-dark", "255, 255, 255");
-  document.documentElement.style.setProperty("--color-light", "10, 10, 20");
-} else {
-  document.querySelector("[data-settings-theme]").value = "day";
-  document.documentElement.style.setProperty("--color-dark", "10, 10, 20");
-  document.documentElement.style.setProperty("--color-light", "255, 255, 255");
+function selectedBook(active, pathArray) {
+  for (const node of pathArray) {
+    if (active) break;
+
+    if (node?.dataset?.preview) {
+      let result = null;
+
+      for (const singleBook of books) {
+        if (result) break;
+        if (singleBook.id === node?.dataset?.preview) result = singleBook;
+      }
+
+      active = result;
+    }
+  }
+
+  if (active) {
+    document.querySelector("[data-list-active]").open = true;
+    document.querySelector("[data-list-blur]").src = active.image;
+    document.querySelector("[data-list-image]").src = active.image;
+    document.querySelector("[data-list-title]").innerText = active.title;
+    document.querySelector("[data-list-subtitle]").innerText =
+      `${authors[active.author]} (${new Date(active.published).getFullYear()})`;
+    document.querySelector("[data-list-description]").innerText =
+      active.description;
+  }
 }
 
 document.querySelector("[data-search-cancel]").addEventListener("click", () => {
@@ -146,9 +165,7 @@ document
     event.preventDefault();
     const formData = new FormData(event.target);
     const { theme } = Object.fromEntries(formData);
-
     toggleTheme(theme);
-
     document.querySelector("[data-settings-overlay]").open = false;
   });
 
@@ -197,7 +214,7 @@ document
 
 document
   .querySelector("[data-list-button]")
-  .addEventListener("click", () => showMore(matches));
+  .addEventListener("click", () => updateUI(matches));
 
 document
   .querySelector("[data-list-items]")
@@ -205,35 +222,11 @@ document
     const pathArray = Array.from(event.path || event.composedPath());
     let active = null;
 
-    for (const node of pathArray) {
-      if (active) break;
-
-      if (node?.dataset?.preview) {
-        let result = null;
-
-        for (const singleBook of books) {
-          if (result) break;
-          if (singleBook.id === node?.dataset?.preview) result = singleBook;
-        }
-
-        active = result;
-      }
-    }
-
-    if (active) {
-      document.querySelector("[data-list-active]").open = true;
-      document.querySelector("[data-list-blur]").src = active.image;
-      document.querySelector("[data-list-image]").src = active.image;
-      document.querySelector("[data-list-title]").innerText = active.title;
-      document.querySelector("[data-list-subtitle]").innerText =
-        `${authors[active.author]} (${new Date(active.published).getFullYear()})`;
-      document.querySelector("[data-list-description]").innerText =
-        active.description;
-    }
+    selectedBook(active, pathArray);
   });
 
 function init() {
-  showMore(matches);
+  updateUI(matches);
   genreFilter();
   authorFilter();
 }
