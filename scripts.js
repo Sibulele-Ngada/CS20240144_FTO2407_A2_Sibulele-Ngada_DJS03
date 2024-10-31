@@ -2,11 +2,17 @@ import { books, authors, genres, BOOKS_PER_PAGE } from "./data.js";
 
 let page = 1;
 let matches = books;
+let pageCount = 0;
 
 const starting = document.createDocumentFragment();
+function init(displayBooks) {
+  starting.innerHTML = "";
+  pageCount = pageCount === 0 ? pageCount : BOOKS_PER_PAGE;
 
-function init() {
-  for (const { author, id, image, title } of matches.slice(0, BOOKS_PER_PAGE)) {
+  for (const { author, id, image, title } of displayBooks.slice(
+    pageCount,
+    pageCount + BOOKS_PER_PAGE
+  )) {
     const element = document.createElement("button");
     element.classList = "preview";
     element.setAttribute("data-preview", id);
@@ -25,14 +31,15 @@ function init() {
 
     starting.appendChild(element);
   }
+
+  pageCount += BOOKS_PER_PAGE;
   return starting;
 }
 
-document.querySelector("[data-list-items]").appendChild(init());
-
-const genreHtml = document.createDocumentFragment();
+document.querySelector("[data-list-items]").appendChild(init(books));
 
 function genreFilter() {
+  const genreHtml = document.createDocumentFragment();
   const firstGenreElement = document.createElement("option");
   firstGenreElement.value = "any";
   firstGenreElement.innerText = "All Genres";
@@ -84,8 +91,8 @@ if (
 
 document.querySelector("[data-list-button]").innerText =
   `Show more (${books.length - BOOKS_PER_PAGE})`;
-document.querySelector("[data-list-button]").disabled =
-  matches.length - page * BOOKS_PER_PAGE > 0;
+// document.querySelector("[data-list-button]").disabled =
+//   matches.length - page * BOOKS_PER_PAGE > 0;
 
 document.querySelector("[data-list-button]").innerHTML = `
     <span>Show more</span>
@@ -222,33 +229,7 @@ document
   });
 
 document.querySelector("[data-list-button]").addEventListener("click", () => {
-  const fragment = document.createDocumentFragment();
-
-  for (const { author, id, image, title } of matches.slice(
-    page * BOOKS_PER_PAGE,
-    (page + 1) * BOOKS_PER_PAGE
-  )) {
-    const element = document.createElement("button");
-    element.classList = "preview";
-    element.setAttribute("data-preview", id);
-
-    element.innerHTML = `
-            <img
-                class="preview__image"
-                src="${image}"
-            />
-            
-            <div class="preview__info">
-                <h3 class="preview__title">${title}</h3>
-                <div class="preview__author">${authors[author]}</div>
-            </div>
-        `;
-
-    fragment.appendChild(element);
-  }
-
-  document.querySelector("[data-list-items]").appendChild(fragment);
-  page += 1;
+  document.querySelector("[data-list-items]").appendChild(init(books));
 });
 
 document
@@ -266,12 +247,12 @@ document
         for (const singleBook of books) {
           if (result) break;
           if (singleBook.id === node?.dataset?.preview) result = singleBook;
+          console.log(singleBook.id);
         }
 
         active = result;
       }
     }
-
     if (active) {
       document.querySelector("[data-list-active]").open = true;
       document.querySelector("[data-list-blur]").src = active.image;
