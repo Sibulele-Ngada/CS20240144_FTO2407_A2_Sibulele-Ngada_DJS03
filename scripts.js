@@ -1,15 +1,14 @@
 import { books, authors, genres, BOOKS_PER_PAGE } from "./data.js";
 
-let page = 1;
 let matches = books;
-let pageCount = 0;
+let booksDisplayed = 0;
 
-function displayBooks(seeBooks) {
+function displayBooks(books) {
   const starting = document.createDocumentFragment();
 
-  for (const { author, id, image, title } of seeBooks.slice(
-    pageCount,
-    pageCount + BOOKS_PER_PAGE
+  for (const { author, id, image, title } of books.slice(
+    booksDisplayed,
+    booksDisplayed + BOOKS_PER_PAGE
   )) {
     const element = document.createElement("button");
     element.classList = "preview";
@@ -31,16 +30,16 @@ function displayBooks(seeBooks) {
   }
 
   document.querySelector("[data-list-items]").appendChild(starting);
-  pageCount += BOOKS_PER_PAGE;
+  booksDisplayed += BOOKS_PER_PAGE;
 }
 
-function updateUI(daBooks) {
-  displayBooks(daBooks);
+function updateUI(books) {
+  displayBooks(books);
   document.querySelector("[data-list-button]").disabled = false;
   document.querySelector("[data-list-button]").innerText =
-    `Show more (${daBooks.length - pageCount})`;
+    `Show more (${books.length - booksDisplayed})`;
 
-  if (daBooks.length - pageCount <= 0) {
+  if (books.length - booksDisplayed <= 0) {
     document.querySelector("[data-list-button]").innerText = `Show more (0)`;
     document.querySelector("[data-list-button]").disabled = true;
   }
@@ -48,7 +47,7 @@ function updateUI(daBooks) {
 
 function showResults(result) {
   document.querySelector("[data-list-items]").innerHTML = "";
-  pageCount = 0;
+  booksDisplayed = 0;
   updateUI(result);
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
