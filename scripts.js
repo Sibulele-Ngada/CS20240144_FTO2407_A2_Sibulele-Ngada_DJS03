@@ -20,6 +20,10 @@ const html = {
   theme: document.querySelector("[data-settings-theme]"),
 };
 
+/**
+ * This function displays the books to the user for the to select
+ * @param {Book} books
+ */
 function displayBooks(books) {
   try {
     const fragment = document.createDocumentFragment();
@@ -54,6 +58,10 @@ function displayBooks(books) {
   }
 }
 
+/**
+ * This function updates the UI to show relevant books and show more button
+ * @param {Book} books
+ */
 function updateUI(books) {
   try {
     displayBooks(books);
@@ -70,6 +78,10 @@ function updateUI(books) {
   }
 }
 
+/**
+ * This function generates a list from which a user can selct an item to filter the books being displayed
+ * @param {object} filter
+ */
 function generateFilter(filter) {
   try {
     const filterName = filter === authors ? "Authors" : "Genres";
@@ -98,11 +110,18 @@ function generateFilter(filter) {
   }
 }
 
+/**
+ * This function loads the search function display
+ */
 function loadSearch() {
   generateFilter(genres);
   generateFilter(authors);
 }
 
+/**
+ * This function toggles the theme of the site between day and night based on user selected settings
+ * @param {string} theme
+ */
 function toggleTheme(theme) {
   try {
     if (
@@ -129,6 +148,11 @@ function toggleTheme(theme) {
   }
 }
 
+/**
+ * This function selects and displays a specfic book from the preview
+ * @param {Book} active
+ * @param {Array} pathArray
+ */
 function selectedBook(active, pathArray) {
   try {
     for (const node of pathArray) {
@@ -161,6 +185,10 @@ function selectedBook(active, pathArray) {
   }
 }
 
+/**
+ * This function displays the results from a search
+ * @param {Book} result
+ */
 function showResults(result) {
   try {
     document.querySelector("[data-list-items]").innerHTML = "";
@@ -186,6 +214,10 @@ function showResults(result) {
   }
 }
 
+/**
+ *
+ * @param {*} filters
+ */
 function search(filters) {
   try {
     const result = [];
@@ -262,6 +294,7 @@ try {
       event.preventDefault();
       const formData = new FormData(event.target);
       const filters = Object.fromEntries(formData);
+      console.log(filters);
       document.querySelector("[data-search-overlay]").open = false;
       search(filters);
     });
