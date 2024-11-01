@@ -1,6 +1,10 @@
 //@ts-check
 
 /**
+ * The Book Connect site allows the user see, search for and select any book within the collection for viewing. It porvides the user with the publishing date, author, description and a picture of the cover on demand.
+ */
+
+/**
  * @typedef {object} Book - An object representing a book to be displayed to the user
  * @prop {string} id - A unique value used to identify a book
  * @prop {Array} genres - An array of values representing the genres a book can be categorized by
