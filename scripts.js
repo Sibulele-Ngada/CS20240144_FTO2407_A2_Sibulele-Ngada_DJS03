@@ -22,18 +22,21 @@ import { books, authors, genres, BOOKS_PER_PAGE } from "./data.js";
 let matches;
 let booksDisplayed;
 
+/**
+ * Collection of HTML elements
+ */
 const html = {
   theme: document.querySelector("[data-settings-theme]"),
+  showMoreButton: document.querySelector("[data-list-button]"),
+  fragment: document.createDocumentFragment(),
 };
 
 /**
- * This function displays the books to the user for the to select
+ * Displays the books to the user for the to select
  * @param {Book} books
  */
 function displayBooks(books) {
   try {
-    const fragment = document.createDocumentFragment();
-
     // @ts-ignore
     for (const { author, id, image, title } of books.slice(
       booksDisplayed,
@@ -56,11 +59,11 @@ function displayBooks(books) {
                     </div>
                 `;
 
-      fragment.appendChild(element);
+      html.fragment.appendChild(element);
     }
 
     // @ts-ignore
-    document.querySelector("[data-list-items]").appendChild(fragment);
+    document.querySelector("[data-list-items]").appendChild(html.fragment);
     booksDisplayed += BOOKS_PER_PAGE;
   } catch (err) {
     console.error(`There's been an issue with displaying books - ${err}`);
@@ -68,7 +71,7 @@ function displayBooks(books) {
 }
 
 /**
- * This function updates the UI to show relevant books and show more button
+ * Updates the UI to show relevant books and show more button
  * @param {Array<Book>} books
  */
 function updateUI(books) {
@@ -76,16 +79,15 @@ function updateUI(books) {
     // @ts-ignore
     displayBooks(books);
     // @ts-ignore
-    document.querySelector("[data-list-button]").disabled = false;
+    html.showMoreButton.disabled = false;
     // @ts-ignore
-    document.querySelector("[data-list-button]").innerText =
-      `Show more (${books.length - booksDisplayed})`;
+    html.showMoreButton.innerText = `Show more (${books.length - booksDisplayed})`;
 
     if (books.length - booksDisplayed <= 0) {
       // @ts-ignore
-      document.querySelector("[data-list-button]").innerText = `Show more (0)`;
+      html.showMoreButton.innerText = `Show more (0)`;
       // @ts-ignore
-      document.querySelector("[data-list-button]").disabled = true;
+      html.showMoreButton.disabled = true;
     }
   } catch (err) {
     console.error(`There's been an issue with updating the UI - ${err}`);
@@ -93,31 +95,29 @@ function updateUI(books) {
 }
 
 /**
- * This function generates a list from which a user can selct an item to filter the books being displayed
+ * Generates a list from which a user can select an item to filter the books being displayed
  * @param {object} filter
  */
 function generateFilter(filter) {
   try {
     const filterName = filter === authors ? "Authors" : "Genres";
 
-    const fragment = document.createDocumentFragment();
     const firstElement = document.createElement("option");
     firstElement.value = "any";
     firstElement.innerText = `All ${filterName}`;
-    fragment.appendChild(firstElement);
-    console.log;
+    html.fragment.appendChild(firstElement);
 
     for (const [id, name] of Object.entries(filter)) {
       const element = document.createElement("option");
       element.value = id;
       element.innerText = name;
-      fragment.appendChild(element);
+      html.fragment.appendChild(element);
     }
 
     // @ts-ignore
     document
       .querySelector(`[data-search-${filterName.toLowerCase()}]`)
-      .appendChild(fragment);
+      .appendChild(html.fragment);
   } catch (err) {
     console.error(
       `There's been an issue with generating a search filter - ${err}`
@@ -126,7 +126,7 @@ function generateFilter(filter) {
 }
 
 /**
- * This function loads the search function display
+ * Loads the search function display in header
  */
 function loadSearch() {
   generateFilter(genres);
@@ -134,7 +134,7 @@ function loadSearch() {
 }
 
 /**
- * This function toggles the theme of the site between day and night based on user selected settings
+ * Toggles the theme of the site between day and night based on user selected settings
  * @param {string | FormDataEntryValue} theme
  */
 function toggleTheme(theme) {
@@ -166,25 +166,21 @@ function toggleTheme(theme) {
 }
 
 /**
- * This function selects and displays a specfic book from the preview
- * @param {Book} active
+ * Selects and displays a specfic book from the preview
  * @param {Array} pathArray
  */
-function selectedBook(active, pathArray) {
+function selectedBook(pathArray) {
   try {
+    let active = null;
+
     for (const node of pathArray) {
       if (active) break;
 
       if (node?.dataset?.preview) {
-        let result = null;
-
         for (const singleBook of books) {
-          if (result) break;
-          if (singleBook.id === node?.dataset?.preview) result = singleBook;
+          if (active) break;
+          if (singleBook.id === node?.dataset?.preview) active = singleBook;
         }
-
-        // @ts-ignore
-        active = result;
       }
     }
 
@@ -210,7 +206,7 @@ function selectedBook(active, pathArray) {
 }
 
 /**
- * This function displays the results from a search
+ * Displays the results from a search
  * @param {Array<Book>} result
  */
 function showResults(result) {
@@ -244,7 +240,7 @@ function showResults(result) {
 }
 
 /**
- * This function performs the search based on user selected filters
+ * Performs the search based on user selected filters
  * @param {object} filters
  */
 function search(filters) {
@@ -370,9 +366,7 @@ try {
    * Extends page to show more books
    */
   // @ts-ignore
-  document
-    .querySelector("[data-list-button]")
-    .addEventListener("click", () => updateUI(matches));
+  html.showMoreButton.addEventListener("click", () => updateUI(matches));
 
   /**
    * Opens overlay with details of selected book
@@ -383,10 +377,8 @@ try {
     .addEventListener("click", (event) => {
       // @ts-ignore
       const pathArray = Array.from(event.path || event.composedPath());
-      let active = null;
 
-      // @ts-ignore
-      selectedBook(active, pathArray);
+      selectedBook(pathArray);
     });
 } catch (err) {
   console.error(`There's been an issue with an event listener - ${err}`);
