@@ -1,3 +1,16 @@
+/**
+ * @typedef {object} Book - An object representing a book to be displayed to the user
+ * @prop {string} id - A unique value used to identify a book
+ * @prop {Array} genres - An array of values representing the genres a book can be categorized by
+ * @prop {Number} popularity - A number representing the popularity of a book out of 100
+ * @prop {string} title - The title of a book
+ * @prop {string} image - A link to an image of the cover of a book
+ * @prop {string} description - A brief description of a book's contents
+ * @prop {Number} pages - The number of pages in the book
+ * @prop {Date} published - The date the book was published
+ * @prop {string} author - A unique value representing the author of a book
+ */
+
 import { books, authors, genres, BOOKS_PER_PAGE } from "./data.js";
 
 let matches;
