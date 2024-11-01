@@ -19,11 +19,18 @@
 
 import { books, authors, genres, BOOKS_PER_PAGE } from "./data.js";
 
+/**
+ * @type {Array<Book>}
+ */
 let matches;
+/**
+ * @type {Number}
+ */
 let booksDisplayed;
 
 /**
  * Collection of HTML elements
+ * @type {Object}
  */
 const html = {
   theme: document.querySelector("[data-settings-theme]"),
