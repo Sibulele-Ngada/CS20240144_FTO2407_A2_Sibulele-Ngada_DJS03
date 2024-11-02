@@ -16,10 +16,13 @@ import { books, authors, genres, BOOKS_PER_PAGE } from "./data.js";
  */
 
 /**
+ * Array of the current selection of books
  * @type {Array<Book>}
  */
 let matches;
+
 /**
+ * Maximum number of books displayed on screen
  * @type {Number}
  */
 let booksDisplayed;
@@ -53,7 +56,7 @@ const html = {
 };
 
 /**
- * Displays the books to the user for the to select
+ * Displays preview of books for user to select
  * @param {Array<Book>} books
  */
 function displayBooks(books) {
@@ -110,14 +113,13 @@ function updateUI(books) {
 /**
  * Generates a list from which a user can select an item to filter the books being displayed
  * @param {object} filter
+ * @param {string} name
  */
-function generateFilter(filter) {
+function generateFilter(filter, name) {
   try {
-    const filterName = filter === authors ? "Authors" : "Genres";
-
     const firstElement = document.createElement("option");
     firstElement.value = "any";
-    firstElement.innerText = `All ${filterName}`;
+    firstElement.innerText = `All ${name}`;
     html.fragment.appendChild(firstElement);
 
     for (const [id, name] of Object.entries(filter)) {
@@ -129,7 +131,7 @@ function generateFilter(filter) {
 
     // @ts-ignore
     document
-      .querySelector(`[data-search-${filterName.toLowerCase()}]`)
+      .querySelector(`[data-search-${name.toLowerCase()}]`)
       .appendChild(html.fragment);
   } catch (err) {
     console.error(
@@ -142,8 +144,8 @@ function generateFilter(filter) {
  * Loads the search function display in header
  */
 function loadSearch() {
-  generateFilter(genres);
-  generateFilter(authors);
+  generateFilter(genres, "Genres");
+  generateFilter(authors, "Authors");
 }
 
 /**
@@ -265,45 +267,27 @@ function search(filters) {
 
 // Event listeners
 try {
-  /**
-   * Close search overlay
-   */
   html.searchCancelBtn.addEventListener("click", () => {
     html.searchOverlay.open = false;
   });
 
-  /**
-   * Close settings overlay
-   */
   html.settingsCancelBtn.addEventListener("click", () => {
     html.settingsOverlay.open = false;
   });
 
-  /**
-   * Open search overlay
-   */
   html.searchBtn.addEventListener("click", () => {
     html.searchOverlay.open = true;
     html.searchTitle.focus();
   });
 
-  /**
-   * Open settings overlay
-   */
   html.settingsBtn.addEventListener("click", () => {
     html.settingsOverlay.open = true;
   });
 
-  /**
-   * Close selected book overlay
-   */
   html.closeBtn.addEventListener("click", () => {
     html.activeBook.open = false;
   });
 
-  /**
-   * Handles settings form data and calls settings related functons like togggle theme
-   */
   html.settingsForm.addEventListener("submit", (event) => {
     event.preventDefault();
 
@@ -313,9 +297,6 @@ try {
     toggleTheme(theme);
   });
 
-  /**
-   * Handles search form data and passes the filters to search() function
-   */
   html.searchForm.addEventListener("submit", (event) => {
     event.preventDefault();
 
@@ -325,14 +306,8 @@ try {
     search(filters);
   });
 
-  /**
-   * Extends page to show more books
-   */
   html.showMoreButton.addEventListener("click", () => updateUI(matches));
 
-  /**
-   * Opens overlay with details of selected book
-   */
   html.bookList.addEventListener("click", (event) => {
     const pathArray = Array.from(event.composedPath());
     selectedBook(pathArray);
@@ -341,9 +316,6 @@ try {
   console.error(`There's been an issue with an event listener - ${err}`);
 }
 
-/**
- * Initialises page when first loaded
- */
 function init() {
   matches = books;
   booksDisplayed = 0;
