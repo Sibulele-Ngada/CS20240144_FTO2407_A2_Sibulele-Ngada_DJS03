@@ -16,13 +16,6 @@ import { books, authors, genres, BOOKS_PER_PAGE } from "./data.js";
  */
 
 /**
- * @typedef {object} Search
- * @prop {string} title
- * @prop {string} author
- * @prop {string} genre
- */
-
-/**
  * @type {Array<Book>}
  */
 let matches;
@@ -36,10 +29,27 @@ let booksDisplayed;
  * @type {Object.<PropertyDescriptor, HTMLElement>}
  */
 const html = {
-  // @ts-ignore
+  fragment: document.createDocumentFragment(),
   theme: document.querySelector("[data-settings-theme]"),
   showMoreButton: document.querySelector("[data-list-button]"),
-  fragment: document.createDocumentFragment(),
+  bookList: document.querySelector("[data-list-items]"),
+  activeBook: document.querySelector("[data-list-active]"),
+  blur: document.querySelector("[data-list-blur]"),
+  cover: document.querySelector("[data-list-image]"),
+  title: document.querySelector("[data-list-title]"),
+  subtitle: document.querySelector("[data-list-subtitle]"),
+  description: document.querySelector("[data-list-description]"),
+  closeBtn: document.querySelector("[data-list-close]"),
+  message: document.querySelector("[data-list-message]"),
+  searchBtn: document.querySelector("[data-header-search]"),
+  searchCancelBtn: document.querySelector("[data-search-cancel]"),
+  searchOverlay: document.querySelector("[data-search-overlay]"),
+  searchTitle: document.querySelector("[data-search-title]"),
+  searchForm: document.querySelector("[data-search-form]"),
+  settingsBtn: document.querySelector("[data-header-settings]"),
+  settingsCancelBtn: document.querySelector("[data-settings-cancel]"),
+  settingsOverlay: document.querySelector("[data-settings-overlay]"),
+  settingsForm: document.querySelector("[data-settings-form]"),
 };
 
 /**
@@ -48,14 +58,12 @@ const html = {
  */
 function displayBooks(books) {
   try {
-    // @ts-ignore
     for (const { author, id, image, title } of books.slice(
       booksDisplayed,
       booksDisplayed + BOOKS_PER_PAGE
     )) {
       const element = document.createElement("button");
-      // @ts-ignore
-      element.classList = "preview";
+      element.className = "preview";
       element.setAttribute("data-preview", id);
 
       element.innerHTML = `
@@ -73,8 +81,7 @@ function displayBooks(books) {
       html.fragment.appendChild(element);
     }
 
-    // @ts-ignore
-    document.querySelector("[data-list-items]").appendChild(html.fragment);
+    html.bookList.appendChild(html.fragment);
     booksDisplayed += BOOKS_PER_PAGE;
   } catch (err) {
     console.error(`There's been an issue with displaying books - ${err}`);
@@ -87,17 +94,12 @@ function displayBooks(books) {
  */
 function updateUI(books) {
   try {
-    // @ts-ignore
     displayBooks(books);
-    // @ts-ignore
     html.showMoreButton.disabled = false;
-    // @ts-ignore
     html.showMoreButton.innerText = `Show more (${books.length - booksDisplayed})`;
 
     if (books.length - booksDisplayed <= 0) {
-      // @ts-ignore
       html.showMoreButton.innerText = `Show more (0)`;
-      // @ts-ignore
       html.showMoreButton.disabled = true;
     }
   } catch (err) {
@@ -155,7 +157,6 @@ function toggleTheme(theme) {
       window.matchMedia("(prefers-color-scheme: dark)").matches &&
       theme === "night"
     ) {
-      // @ts-ignore
       html.theme.value = "night";
       document.documentElement.style.setProperty(
         "--color-dark",
@@ -163,7 +164,6 @@ function toggleTheme(theme) {
       );
       document.documentElement.style.setProperty("--color-light", "10, 10, 20");
     } else {
-      // @ts-ignore
       html.theme.value = "day";
       document.documentElement.style.setProperty("--color-dark", "10, 10, 20");
       document.documentElement.style.setProperty(
@@ -199,20 +199,12 @@ function selectedBook(pathArray) {
     }
 
     if (active) {
-      // @ts-ignore
-      document.querySelector("[data-list-active]").open = true;
-      // @ts-ignore
-      document.querySelector("[data-list-blur]").src = active.image;
-      // @ts-ignore
-      document.querySelector("[data-list-image]").src = active.image;
-      // @ts-ignore
-      document.querySelector("[data-list-title]").innerText = active.title;
-      // @ts-ignore
-      document.querySelector("[data-list-subtitle]").innerText =
-        `${authors[active.author]} (${new Date(active.published).getFullYear()})`;
-      // @ts-ignore
-      document.querySelector("[data-list-description]").innerText =
-        active.description;
+      html.activeBook.open = true;
+      html.blur.src = active.image;
+      html.cover.src = active.image;
+      html.title.innerText = active.title;
+      html.subtitle.innerText = `${authors[active.author]} (${new Date(active.published).getFullYear()})`;
+      html.description.innerText = active.description;
     }
   } catch (err) {
     console.error(`There's been an issue with selecting a book - ${err}`);
@@ -225,25 +217,16 @@ function selectedBook(pathArray) {
  */
 function showResults(result) {
   try {
-    // @ts-ignore
-    document.querySelector("[data-list-items]").innerHTML = "";
+    html.bookList.innerHTML = "";
     booksDisplayed = 0;
     matches = result;
 
-    // @ts-ignore
     if (result.length < 1) {
-      // @ts-ignore
-      document
-        .querySelector("[data-list-message]")
-        .classList.add("list__message_show");
+      html.message.classList.add("list__message_show");
     } else {
-      // @ts-ignore
-      document
-        .querySelector("[data-list-message]")
-        .classList.remove("list__message_show");
+      html.message.classList.remove("list__message_show");
     }
 
-    // @ts-ignore
     updateUI(result);
     window.scrollTo({ top: 0, behavior: "smooth" });
   } catch (err) {
@@ -270,6 +253,7 @@ function search(filters) {
         match.title.toLowerCase().includes(filters.title.toLowerCase());
       const genreMatch =
         filters.genre === "any" || match.genres.includes(filters.genre);
+
       if (titleMatch && authorMatch && genreMatch) return match;
     });
 
@@ -279,112 +263,80 @@ function search(filters) {
   }
 }
 
+// Event listeners
 try {
   /**
    * Close search overlay
    */
-  // @ts-ignore
-  document
-    .querySelector("[data-search-cancel]")
-    .addEventListener("click", () => {
-      // @ts-ignore
-      document.querySelector("[data-search-overlay]").open = false;
-    });
+  html.searchCancelBtn.addEventListener("click", () => {
+    html.searchOverlay.open = false;
+  });
 
   /**
    * Close settings overlay
    */
-  // @ts-ignore
-  document
-    .querySelector("[data-settings-cancel]")
-    .addEventListener("click", () => {
-      // @ts-ignore
-      document.querySelector("[data-settings-overlay]").open = false;
-    });
+  html.settingsCancelBtn.addEventListener("click", () => {
+    html.settingsOverlay.open = false;
+  });
 
   /**
    * Open search overlay
    */
-  // @ts-ignore
-  document
-    .querySelector("[data-header-search]")
-    .addEventListener("click", () => {
-      // @ts-ignore
-      document.querySelector("[data-search-overlay]").open = true;
-      // @ts-ignore
-      document.querySelector("[data-search-title]").focus();
-    });
+  html.searchBtn.addEventListener("click", () => {
+    html.searchOverlay.open = true;
+    html.searchTitle.focus();
+  });
 
   /**
    * Open settings overlay
    */
-  // @ts-ignore
-  document
-    .querySelector("[data-header-settings]")
-    .addEventListener("click", () => {
-      // @ts-ignore
-      document.querySelector("[data-settings-overlay]").open = true;
-    });
+  html.settingsBtn.addEventListener("click", () => {
+    html.settingsOverlay.open = true;
+  });
 
   /**
    * Close selected book overlay
    */
-  // @ts-ignore
-  document.querySelector("[data-list-close]").addEventListener("click", () => {
-    // @ts-ignore
-    document.querySelector("[data-list-active]").open = false;
+  html.closeBtn.addEventListener("click", () => {
+    html.activeBook.open = false;
   });
 
   /**
    * Handles settings form data and calls settings related functons like togggle theme
    */
-  // @ts-ignore
-  document
-    .querySelector("[data-settings-form]")
-    .addEventListener("submit", (event) => {
-      event.preventDefault();
-      // @ts-ignore
-      const formData = new FormData(event.target);
-      const { theme } = Object.fromEntries(formData);
-      // @ts-ignore
-      document.querySelector("[data-settings-overlay]").open = false;
-      toggleTheme(theme);
-    });
+  html.settingsForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(event.target);
+    const { theme } = Object.fromEntries(formData);
+    html.settingsOverlay.open = false;
+    toggleTheme(theme);
+  });
 
   /**
    * Handles search form data and passes the filters to search() function
    */
-  // @ts-ignore
-  document
-    .querySelector("[data-search-form]")
-    .addEventListener("submit", (event) => {
-      event.preventDefault();
-      // @ts-ignore
-      const formData = new FormData(event.target);
-      const filters = Object.fromEntries(formData);
-      // @ts-ignore
-      document.querySelector("[data-search-overlay]").open = false;
-      search(filters);
-    });
+  html.searchForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(event.target);
+    const filters = Object.fromEntries(formData);
+    html.searchOverlay.open = false;
+    search(filters);
+  });
 
   /**
    * Extends page to show more books
    */
-  // @ts-ignore
   html.showMoreButton.addEventListener("click", () => updateUI(matches));
 
   /**
    * Opens overlay with details of selected book
    */
-  // @ts-ignore
-  document
-    .querySelector("[data-list-items]")
-    .addEventListener("click", (event) => {
-      // @ts-ignore
-      const pathArray = Array.from(event.path || event.composedPath());
-
-      selectedBook(pathArray);
-    });
+  html.bookList.addEventListener("click", (event) => {
+    const pathArray = Array.from(event.composedPath());
+    selectedBook(pathArray);
+  });
 } catch (err) {
   console.error(`There's been an issue with an event listener - ${err}`);
 }
@@ -395,7 +347,6 @@ try {
 function init() {
   matches = books;
   booksDisplayed = 0;
-  // @ts-ignore
   toggleTheme(html.theme.value);
   loadSearch();
   updateUI(matches);
