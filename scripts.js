@@ -1,8 +1,6 @@
 //@ts-check
 
-/**
- * The Book Connect site allows the user see, search for and select any book within the collection for viewing. It porvides the user with the publishing date, author, description and a picture of the cover on demand.
- */
+import { books, authors, genres, BOOKS_PER_PAGE } from "./data.js";
 
 /**
  * @typedef {object} Book - An object representing a book to be displayed to the user
@@ -17,7 +15,12 @@
  * @prop {string} author - A unique value representing the author of a book
  */
 
-import { books, authors, genres, BOOKS_PER_PAGE } from "./data.js";
+/**
+ * @typedef {object} Search
+ * @prop {string} title
+ * @prop {string} author
+ * @prop {string} genre
+ */
 
 /**
  * @type {Array<Book>}
@@ -30,9 +33,10 @@ let booksDisplayed;
 
 /**
  * Collection of HTML elements
- * @type {Object}
+ * @type {Object.<PropertyDescriptor, HTMLElement>}
  */
 const html = {
+  // @ts-ignore
   theme: document.querySelector("[data-settings-theme]"),
   showMoreButton: document.querySelector("[data-list-button]"),
   fragment: document.createDocumentFragment(),
@@ -40,7 +44,7 @@ const html = {
 
 /**
  * Displays the books to the user for the to select
- * @param {Book} books
+ * @param {Array<Book>} books
  */
 function displayBooks(books) {
   try {
@@ -178,6 +182,9 @@ function toggleTheme(theme) {
  */
 function selectedBook(pathArray) {
   try {
+    /**
+     * @type {Book | null}
+     */
     let active = null;
 
     for (const node of pathArray) {
@@ -252,29 +259,20 @@ function showResults(result) {
  */
 function search(filters) {
   try {
-    const result = [];
+    /**
+     * @type {Array<Book>}
+     */
+    const result = books.filter((match) => {
+      const authorMatch =
+        filters.author === "any" || filters.author === match.author;
+      const titleMatch =
+        filters.title.trim() === "" ||
+        match.title.toLowerCase().includes(filters.title.toLowerCase());
+      const genreMatch =
+        filters.genre === "any" || match.genres.includes(filters.genre);
+      if (titleMatch && authorMatch && genreMatch) return match;
+    });
 
-    for (const book of books) {
-      let genreMatch = filters.genre === "any";
-
-      for (const singleGenre of book.genres) {
-        if (genreMatch) break;
-        if (singleGenre === filters.genre) {
-          genreMatch = true;
-        }
-      }
-
-      if (
-        (filters.title.trim() === "" ||
-          book.title.toLowerCase().includes(filters.title.toLowerCase())) &&
-        (filters.author === "any" || book.author === filters.author) &&
-        genreMatch
-      ) {
-        result.push(book);
-      }
-    }
-
-    // @ts-ignore
     showResults(result);
   } catch (err) {
     console.error(`There's been an issue with searching for results - ${err}`);
