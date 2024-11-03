@@ -248,7 +248,7 @@ function showResults(result) {
 
 /**
  * Performs the search based on user selected filters
- * @param {Search} filters
+ * @param {object} filters
  */
 function search(filters) {
   try {
