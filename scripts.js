@@ -16,6 +16,13 @@ import { books, authors, genres, BOOKS_PER_PAGE } from "./data.js";
  */
 
 /**
+ * @typedef {object} Search
+ * @prop {string} title
+ * @prop {string} genre
+ * @prop {string} author
+ */
+
+/**
  * Array of the current selection of books
  * @type {Array<Book>}
  */
@@ -150,7 +157,7 @@ function loadSearch() {
 
 /**
  * Toggles the theme of the site between day and night based on user selected settings
- * @param {string | FormDataEntryValue} theme
+ * @param {FormDataEntryValue | string} theme
  */
 function toggleTheme(theme) {
   try {
@@ -189,6 +196,7 @@ function selectedBook(pathArray) {
      */
     let active = null;
 
+    // Selects and assigns active book from pathway of the event listener
     for (const node of pathArray) {
       if (active) break;
 
@@ -240,7 +248,7 @@ function showResults(result) {
 
 /**
  * Performs the search based on user selected filters
- * @param {object} filters
+ * @param {Search} filters
  */
 function search(filters) {
   try {
